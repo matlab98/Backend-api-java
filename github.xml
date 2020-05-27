@@ -1,0 +1,10 @@
+<application>
+  <component name="GithubAccounts">
+    <account id="5b1c46e8-4f40-4ab0-b2cd-e689fe5db676" name="matlab98">
+      <server host="github.com" />
+    </account>
+  </component>
+  <component name="GithubSettings">
+    <option name="CLONE_GIT_USING_SSH" value="true" />
+  </component>
+</application>
