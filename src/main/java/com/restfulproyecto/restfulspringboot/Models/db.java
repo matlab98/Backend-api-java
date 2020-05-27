@@ -23,15 +23,14 @@ public class db implements AutoCloseable{
         try(ResultSet rs = st.executeQuery(SQL)) {
             if (rs.next()) {
 
-
                 user.setName(rs.getString("fullname"));
                 user.setAddress(rs.getString("address"));
                 user.setPhone(rs.getString("phone"));
+                System.out.println("perra");
 
-                abc = true;
-            }
+               return abc = true;
+            } else {return abc=false;}
         }
-        return abc;
     }
 
     public boolean createUsuario(User user) throws SQLException {

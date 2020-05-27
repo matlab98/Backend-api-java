@@ -1,6 +1,6 @@
 package com.restfulproyecto.restfulspringboot.Models;
 
-public class route {
+public class Route {
 
 
 }

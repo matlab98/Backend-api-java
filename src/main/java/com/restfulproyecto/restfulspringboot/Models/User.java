@@ -2,6 +2,8 @@ package com.restfulproyecto.restfulspringboot.Models;
 
 import com.restfulproyecto.restfulspringboot.Models.Composite.Component;
 
+import javax.crypto.SecretKey;
+
 public class User implements Component {
 
     //region Members
@@ -10,6 +12,7 @@ public class User implements Component {
     private String name;
     private String address;
     private String phone;
+    private SecretKey key;
     //endregion
 
     //region Constructors
@@ -79,4 +82,11 @@ public class User implements Component {
     }
     //endregion
 
+    public SecretKey getKey() {
+        return key;
+    }
+
+    public void setKey(SecretKey key) {
+        this.key = key;
+    }
 }

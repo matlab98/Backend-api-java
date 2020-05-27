@@ -52,44 +52,32 @@ public class UserController {
 	}
 	@GetMapping("/login")
 	public User askUser(@RequestParam("user") String email, @RequestParam("password") String pass) throws SQLException {
-		ProxySystem proxySystem = ProxySystem.getInstance();
+
 		    User user = new User(email, pass);
-		    String llave;
 
-		try {
-			System.out.println(proxySystem.authenticate(user));
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-
-		SecretKey key = login(email, pass);
+		SecretKey key = login(user);
 
 			if (key != null) {
-				System.out.println(key);
-
-			}
-
-
-
-		return user;
+				user.setKey(key);
+				return user;
+			}else {return null;}
 
 	}
+
 	@GetMapping("/create")
-	public User createUser( @RequestParam("user") String mail, @RequestParam("password") String pwd,
+	public User createUser( @RequestParam String llave, @RequestParam("user") String mail, @RequestParam("password") String pwd,
 							 @RequestParam("name") String name, @RequestParam("address") String address,
 							 @RequestParam("phone") String phone, @RequestParam("zone") String zone) {
 
-
-
 		User usuario = new User(mail, pwd, name, address, phone);
+
 		try {
 			connection.createUsuario(usuario);
 		} catch (SQLException e) {
 
 		}
-		SecretKey key = login(mail, pwd);
+
+		SecretKey key = login(usuario);
 		createUser(usuario, key);
 		addUserToZone(usuario, zone, key);
 		return null;
@@ -167,11 +155,10 @@ Bus bus = new Bus(placa, seat, reference);
 
 
 
-	private static SecretKey login(String email, String pass) {
-
+	private static SecretKey login(User user) {
 		try {
 			ProxySystem proxySystem = ProxySystem.getInstance();
-			BigInteger nonce = proxySystem.authenticate(new User(email, pass));
+			BigInteger nonce = proxySystem.authenticate(user);
 
 			return deriveKey(nonce.toString().toCharArray());
 
