@@ -1,25 +1,29 @@
 package com.restfulproyecto.restfulspringboot.Models;
 
-import sun.util.calendar.BaseCalendar;
+
 
 public class Route {
-    private BaseCalendar.Date date;
+    private String date;
     private String start;
     private String stop;
     private String Destino;
 
-    public Route(BaseCalendar.Date date, String start, String stop, String destino) {
+    public Route(String date, String start, String stop, String destino) {
         this.date = date;
         this.start = start;
         this.stop = stop;
         Destino = destino;
     }
 
-    public BaseCalendar.Date getDate() {
+    public Route() {
+
+    }
+
+    public String getDate() {
         return date;
     }
 
-    public void setDate(BaseCalendar.Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 

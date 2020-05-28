@@ -2,8 +2,7 @@ package com.restfulproyecto.restfulspringboot.controller;
 
 import com.restfulproyecto.restfulspringboot.Controllers.ProxySystem;
 import com.restfulproyecto.restfulspringboot.Controllers.SystemSabana;
-import com.restfulproyecto.restfulspringboot.Models.Bus;
-import com.restfulproyecto.restfulspringboot.Models.User;
+import com.restfulproyecto.restfulspringboot.Models.*;
 import com.restfulproyecto.restfulspringboot.Utils.CryptoManager;
 import com.restfulproyecto.restfulspringboot.Utils.IPManager;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +11,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
@@ -21,9 +21,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.SQLException;
-
-import com.restfulproyecto.restfulspringboot.Models.Database;
-import com.restfulproyecto.restfulspringboot.Models.db;
+import java.util.Base64;
 
 //endregion
 @RestController
@@ -56,18 +54,21 @@ public class UserController {
 		    User user = new User(email, pass);
 
 		SecretKey key = login(user);
-
+System.out.println("login");
 			if (key != null) {
 				user.setKey(key);
+				System.out.println(key.getEncoded());
 				return user;
 			}else {return null;}
 
 	}
 
 	@GetMapping("/createUser")
-	public User createUser( @RequestParam String llave, @RequestParam("user") String mail, @RequestParam("password") String pwd,
+	public User createUser( @RequestParam("key") String llave, @RequestParam("user") String mail, @RequestParam("password") String pwd,
 							 @RequestParam("name") String name, @RequestParam("address") String address,
 							 @RequestParam("phone") String phone, @RequestParam("zone") String zone) {
+
+		System.out.println("crear usuario");
 
 		User usuario = new User(mail, pwd, name, address, phone);
 
@@ -80,7 +81,7 @@ public class UserController {
 		SecretKey key = login(usuario);
 		createUser(usuario, key);
 		addUserToZone(usuario, zone, key);
-		return null;
+		return usuario;
 	}
 
 	@GetMapping("/updateUser")
@@ -88,22 +89,18 @@ public class UserController {
 							 @RequestParam("address") String address,
 							@RequestParam("phone") String phone, @RequestParam("zone") String zone) {
 
-		/*User usuario = new User(mail, pwd, name, address, phone);
+		System.out.println("actualizar usuario");
 
-		try {
-			connection.createUsuario(usuario);
-		} catch (SQLException e) {
 
-		}
 
-		SecretKey key = login(usuario);
-		createUser(usuario, key);
-		addUserToZone(usuario, zone, key);*/
 		return null;
 	}
 
 	@GetMapping("/searchUserZone")
-	public User searchUserZone( @RequestParam String llave, @RequestParam("zone") String zone) {
+	public User searchUserZone(@RequestParam("key") String llave, @RequestParam("zone") String zone) {
+
+		System.out.println("Buscar usuario por zona");
+// rebuild key using SecretKeySpec
 /*
 		User usuario = new User(mail, pwd, name, address, phone);
 
@@ -123,11 +120,15 @@ public class UserController {
 	@GetMapping("/createRoute")
 	public String askRoute(@RequestParam("key") String llave,@RequestParam("route") String route,@RequestParam("start") String start,@RequestParam("stop") String stop,@RequestParam("hora") String dat) {
 
+		System.out.println("Crear ruta");
+
 		return "Lista";
 	}
 
 	@GetMapping("/askZoneSearch")
 	public String askZoneSearch(@RequestParam("key") String llave) {
+
+		System.out.println("Buscar zona");
 
 		return "Lista";
 	}
@@ -136,7 +137,8 @@ public class UserController {
 	public Bus askBus(@RequestParam("key") String llave, @RequestParam("placa") String placa, @RequestParam("seat") int seat,
 						 @RequestParam("reference") String reference, @RequestParam("conductor") String name,
 					  @RequestParam("destino") String destino){
-Bus bus = new Bus(placa, seat, reference);
+		System.out.println("Crear bus");
+        Bus bus = new Bus(placa, seat, reference);
 		try {
 			connection.createBus(bus);
 		} catch (SQLException e) {
@@ -146,11 +148,14 @@ Bus bus = new Bus(placa, seat, reference);
 	}
 
 	@GetMapping("/searchBusRoute")
-	public Bus searchBusRoute(@RequestParam("placa") String placa) {
+	public Bus searchBusRoute(@RequestParam("key") String llave, @RequestParam("route") String ruta) {
+		System.out.println("Buscar bus ruta");
 		Bus bus = new Bus();
-		bus.setPlate(placa);
+		Route route = new Route();
+		route.setDestino(ruta);
+
 		try {
-			connection.searchBus(bus);
+			connection.searchBus(bus,route);
 		} catch (SQLException e) {
 
 		}
@@ -161,34 +166,41 @@ Bus bus = new Bus(placa, seat, reference);
 	public Bus updateBus(@RequestParam("key") String llave, @RequestParam("placa") String placa, @RequestParam("seat") int seat,
 						 @RequestParam("reference") String reference, @RequestParam("conductor") String name,
 						 @RequestParam("destino") String destino) {
+		System.out.println("Actualizar bus");
 		Bus bus = new Bus();
 		bus.setPlate(placa);
-		try {
-			connection.searchBus(bus);
-		} catch (SQLException e) {
 
-		}
 		return bus;
 	}
 
 
 	@GetMapping("/createTren")
-	public Bus askTren(@RequestParam("key") String llave, @RequestParam("seat") int seat,
-					  @RequestParam("reference") String reference, @RequestParam("conductor") String name,
-					  @RequestParam("destino") String destino){
+	public Tren askTren(@RequestParam("key") String llave, @RequestParam("seat") int seat,
+						@RequestParam("reference") String reference, @RequestParam("conductor") String name,
+						@RequestParam("destino") String destino){
+		System.out.println("Crear tren");
+		Tren tren = new Tren (seat, reference);
+		try {
+			connection.createTren(tren);
+		} catch (SQLException e) {
+
+		}
 	/*	Bus bus = new Bus(placa, seat, reference);
 		try {
 			connection.createBus(bus);
 		} catch (SQLException e) {
 
 		}
-		return bus;*/return null;
+		return bus;*/return tren;
 	}
 
 	@GetMapping("/updateTren")
 	public Bus updateTren(@RequestParam("key") String llave, @RequestParam("seat") int seat,
 						 @RequestParam("reference") String reference, @RequestParam("conductor") String name,
 						 @RequestParam("destino") String destino) {
+
+		System.out.println("actualizar tren");
+
 		/*Bus bus = new Bus();
 		bus.setPlate(placa);
 		try {
@@ -312,9 +324,10 @@ Bus bus = new Bus(placa, seat, reference);
 
 	private static String searchByZone(String zone, SecretKey key) {
 		try {
-			final char separator = '-';
+			final char separator = ',';
 			String msg = "searchGroup" + separator + zone;
 			String method = encrypt(msg, key);
+			System.out.print(method);
 			SystemSabana systemSabana = SystemSabana.getInstance();
 			return (String) systemSabana.callMethod(method, IPManager.getIpAddress());
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException

@@ -76,7 +76,7 @@ public class db implements AutoCloseable{
     public boolean createBus(Bus bus) throws SQLException {
         boolean abc = false;
 
-        String SQL = "insert into transport (id_zone, seat, placa, reference)" +
+        String SQL = "insert into Bus (id_zone, seat, placa, reference)" +
                 " values ((select id from zone where name=?),?,?,?);";
 
         long id = 0;
@@ -110,17 +110,38 @@ public class db implements AutoCloseable{
         return abc;
     }
 
-    public boolean createTren(final String user, final String pass) throws SQLException {
-        boolean abc;
-        try(Statement st = con.createStatement();
+    public boolean createTren(Tren tren) throws SQLException {
+        boolean abc = false;
 
-            ResultSet rs = st.executeQuery("select * from users where mail='"+user+"' and password='"+pass+"'")) {
+        String SQL = "insert into tren (id_zone, seat, reference)" +
+                " values ((select id from zone where name=?),?,?);";
 
-            if (rs.next()) {
-                System.out.println(rs.getString(1));
-                abc = true;
-            } else {abc = false;}
+        long id = 0;
+
+        try (
+                PreparedStatement pstmt = con.prepareStatement(SQL,
+                        Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, "suba");
+            pstmt.setInt(2, tren.getSeats());
+            pstmt.setString(3, tren.getReference());
+
+            int affectedRows = pstmt.executeUpdate();
+            // check the affected rows
+            if (affectedRows > 0) {
+                // get the ID back
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        id = rs.getLong(1);
+                        abc = true;
+                    } else {abc = false;}
+                } catch (SQLException ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
         }
+        //return id;
         return abc;
     }
 
@@ -138,34 +159,39 @@ public class db implements AutoCloseable{
         return abc;
     }
 
-    public boolean SearchZone(final String user, final String pass) throws SQLException {
+    public Route SearchZone() throws SQLException {
         boolean abc;
+        Route route = new Route();
         try(Statement st = con.createStatement();
 
-            ResultSet rs = st.executeQuery("select * from users where mail='"+user+"' and password='"+pass+"'")) {
+            ResultSet rs = st.executeQuery("select * from zone;")) {
 
+            while (rs.next()){
+                route.setDestino(rs.getString("name"));
+            }
             if (rs.next()) {
                 System.out.println(rs.getString(1));
                 abc = true;
             } else {abc = false;}
         }
-        return abc;
+        return route;
     }
 
-    public boolean searchBus(Bus bus) throws SQLException {
-        boolean abc=true;
+    public Bus searchBus(Bus bus, Route route) throws SQLException {
 
-        String SQL = "select * from where placa=?";
-        try (
-                PreparedStatement pstmt = con.prepareStatement(SQL,
-                        Statement.RETURN_GENERATED_KEYS)) {
+System.out.println(route);
+        try(Statement st = con.createStatement();
 
-            pstmt.setString(1, bus.getPlate());
+            ResultSet rs = st.executeQuery("select * from bus;")) {
 
+            while (rs.next()){
+                bus.setPlate(rs.getString("placa"));
+                bus.setSeats(rs.getInt("seat"));
+                bus.setReference(rs.getString("reference"));
+            }
+            }
 
-        }
-
-        return abc;
+        return bus;
     }
 
 }

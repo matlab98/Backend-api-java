@@ -71,52 +71,6 @@ public class SystemSabana implements ILogin {
         final String separator = ",";
 
         String [] params = methodNamePlainText.split(separator);
-        /*
-
-        Esta es otra forma de hacer la reflexion.
-        El string debe ser de la forma -> Nombre del metodo-valor del parametro 1-valor del parametro 2-valor del parametro i-valor del parametro n-&Tipo de dato del parametro 1-Tipo de dato del parametro 2-Tipo de dato del parametro i
-        Los tipos de datos pueden ser Int, String o User.
-
-        int k = methodNamePlainText.indexOf('&');
-
-        String  parameters = methodNamePlainText.substring(0, k);
-        String types = methodNamePlainText.substring(k+1);
-
-        final String separator = "-";
-
-        String [] params = parameters.split(separator);
-        String [] tps = types.split(separator);
-
-        String name = params[0];
-
-        Method method = null;
-
-        for (Method m: getClass().getDeclaredMethods()) {
-            if (m.getName().equals(name)) {
-                method = m;
-                break;
-            }
-        }
-
-        if (method == null) throw new RuntimeException();
-
-        List<Object> vals = new ArrayList();
-
-        for (int i = 1, m = i - 1; i < params.length; ++i, ++m) {
-            if (tps[m].equals("String")) vals.add(params[i]);
-            else if (tps[m].equals("User")) {
-                int s = i;
-                String [] attributes = new String[5];
-                for (; i < s + 5; ++i) attributes[i-s] = params[i];
-                --i;
-                User user = new User(attributes[0], attributes[1], attributes[2], attributes[3], attributes[4]);
-                vals.add(user);
-            } else if (tps[m].equals("Int")) {
-                vals.add(Integer.parseInt(params[i]));
-            }
-        }
-
-        return method.invoke(instance, vals.toArray());*/
 
         if (params[0].equals("showBusRoutes")) {
             return getClass().getDeclaredMethod(params[0]).invoke(instance);
