@@ -31,6 +31,10 @@ public class User implements Component {
         this.address = address;
         this.phone = phone;
     }
+
+    public User() {
+
+    }
     //endregion
 
     //region Overridden methods
