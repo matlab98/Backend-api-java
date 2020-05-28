@@ -64,7 +64,7 @@ public class UserController {
 
 	}
 
-	@GetMapping("/create")
+	@GetMapping("/createUser")
 	public User createUser( @RequestParam String llave, @RequestParam("user") String mail, @RequestParam("password") String pwd,
 							 @RequestParam("name") String name, @RequestParam("address") String address,
 							 @RequestParam("phone") String phone, @RequestParam("zone") String zone) {
@@ -83,26 +83,57 @@ public class UserController {
 		return null;
 	}
 
-	@GetMapping("/askRoute")
-	public String askRoute(@RequestParam("route") String route,@RequestParam("start") String start,@RequestParam("stop") String stop,@RequestParam("date") String dat) {
+	@GetMapping("/updateUser")
+	public User updateUser( @RequestParam String llave, @RequestParam("user") String mail, @RequestParam("password") String pwd,
+							 @RequestParam("address") String address,
+							@RequestParam("phone") String phone, @RequestParam("zone") String zone) {
+
+		/*User usuario = new User(mail, pwd, name, address, phone);
+
+		try {
+			connection.createUsuario(usuario);
+		} catch (SQLException e) {
+
+		}
+
+		SecretKey key = login(usuario);
+		createUser(usuario, key);
+		addUserToZone(usuario, zone, key);*/
+		return null;
+	}
+
+	@GetMapping("/searchUserZone")
+	public User searchUserZone( @RequestParam String llave, @RequestParam("zone") String zone) {
+/*
+		User usuario = new User(mail, pwd, name, address, phone);
+
+		try {
+			connection.createUsuario(usuario);
+		} catch (SQLException e) {
+
+		}
+
+		SecretKey key = login(usuario);
+		createUser(usuario, key);
+		addUserToZone(usuario, zone, key);*/
+		return null;
+	}
+
+
+	@GetMapping("/createRoute")
+	public String askRoute(@RequestParam("key") String llave,@RequestParam("route") String route,@RequestParam("start") String start,@RequestParam("stop") String stop,@RequestParam("hora") String dat) {
 
 		return "Lista";
 	}
 
 	@GetMapping("/askZoneSearch")
-	public String askZoneSearch(@RequestParam("name") String zone) {
+	public String askZoneSearch(@RequestParam("key") String llave) {
 
 		return "Lista";
 	}
 
-	@GetMapping("/showUsersByZone")
-	public String showUsersByZone(@RequestParam("name") String zone) {
-
-		return "Lista";
-	}
-
-	@GetMapping("/askBus")
-	public Bus askBus(@RequestParam("placa") String placa, @RequestParam("seat") int seat,
+	@GetMapping("/createBus")
+	public Bus askBus(@RequestParam("key") String llave, @RequestParam("placa") String placa, @RequestParam("seat") int seat,
 						 @RequestParam("reference") String reference, @RequestParam("conductor") String name,
 					  @RequestParam("destino") String destino){
 Bus bus = new Bus(placa, seat, reference);
@@ -114,8 +145,8 @@ Bus bus = new Bus(placa, seat, reference);
 		return bus;
 	}
 
-	@GetMapping("/searchBus")
-	public Bus searchBus(@RequestParam("placa") String placa) {
+	@GetMapping("/searchBusRoute")
+	public Bus searchBusRoute(@RequestParam("placa") String placa) {
 		Bus bus = new Bus();
 		bus.setPlate(placa);
 		try {
@@ -125,7 +156,51 @@ Bus bus = new Bus(placa, seat, reference);
 		}
 		return bus;
 	}
-	
+
+	@GetMapping("/updateBus")
+	public Bus updateBus(@RequestParam("key") String llave, @RequestParam("placa") String placa, @RequestParam("seat") int seat,
+						 @RequestParam("reference") String reference, @RequestParam("conductor") String name,
+						 @RequestParam("destino") String destino) {
+		Bus bus = new Bus();
+		bus.setPlate(placa);
+		try {
+			connection.searchBus(bus);
+		} catch (SQLException e) {
+
+		}
+		return bus;
+	}
+
+
+	@GetMapping("/createTren")
+	public Bus askTren(@RequestParam("key") String llave, @RequestParam("seat") int seat,
+					  @RequestParam("reference") String reference, @RequestParam("conductor") String name,
+					  @RequestParam("destino") String destino){
+	/*	Bus bus = new Bus(placa, seat, reference);
+		try {
+			connection.createBus(bus);
+		} catch (SQLException e) {
+
+		}
+		return bus;*/return null;
+	}
+
+	@GetMapping("/updateTren")
+	public Bus updateTren(@RequestParam("key") String llave, @RequestParam("seat") int seat,
+						 @RequestParam("reference") String reference, @RequestParam("conductor") String name,
+						 @RequestParam("destino") String destino) {
+		/*Bus bus = new Bus();
+		bus.setPlate(placa);
+		try {
+			connection.searchBus(bus);
+		} catch (SQLException e) {
+
+		}
+		return bus;*/ return null;
+	}
+
+
+
 	@PutMapping("/showBusRoutes")
 	public String showBusRoutes() {
 
@@ -186,7 +261,7 @@ Bus bus = new Bus(placa, seat, reference);
 
 	private static void createBus(String plate, int asientos, String reference, String driverName, String destination, SecretKey key) {
 		try {
-			final char separator = '-';
+			final char separator = ',';
 			String msg = "createBus" + separator + plate + separator + asientos + separator + reference + separator + driverName + separator + destination;
 			String method = encrypt(msg,key);
 			SystemSabana systemSabana = SystemSabana.getInstance();
@@ -205,6 +280,7 @@ Bus bus = new Bus(placa, seat, reference);
 			String msg = "createUser" + separator  + user.getEmail() + separator + user.getPassword() +
 					separator + user.getName() + separator + user.getAddress() + separator + user.getPhone();
 			String method = encrypt(msg, key);
+			System.out.println(method);
 			SystemSabana systemSabana = SystemSabana.getInstance();
 			systemSabana.callMethod(method, IPManager.getIpAddress());
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException
@@ -215,6 +291,7 @@ Bus bus = new Bus(placa, seat, reference);
 
 		}
 	}
+
 
 	private static void addUserToZone(User user, String zone, SecretKey key) {
 		try {
