@@ -1,5 +1,11 @@
 package com.restfulproyecto.restfulspringboot.Models;
+
+
+import com.google.gson.Gson;
+
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class db implements AutoCloseable{
@@ -15,11 +21,14 @@ public class db implements AutoCloseable{
     }
 
     public boolean authenticate(User user) throws SQLException {
+
         boolean abc=true;
+        Statement st;
+
         System.out.println(user.getEmail());
         System.out.println(user.getPassword());
         String SQL = "select fullname,address,phone from users where mail='"+user.getEmail()+"' and password='"+user.getPassword()+"'";
-        Statement st = con.createStatement();;
+        st = con.createStatement();
         try(ResultSet rs = st.executeQuery(SQL)) {
             if (rs.next()) {
 
@@ -32,86 +41,93 @@ public class db implements AutoCloseable{
             } else {return abc=false;}
         }
     }
+public boolean tokenizer(User user) {
 
-    public boolean createUsuario(User user) throws SQLException {
         boolean abc = false;
+    System.out.println(user.getKey());
+    String SQL = "update token set token= '"+user.getKey()+"' where id= '"+user.getEmail()+"'";
 
-        String SQL = "insert into users (fullname, address, phone, id_zone, mail, password)" +
-                " values (?, ?,?,(select id from zone where name=?),?,?);";
-
-        long id = 0;
-
-        try (
-             PreparedStatement pstmt = con.prepareStatement(SQL,
-                     Statement.RETURN_GENERATED_KEYS)) {
-
-            pstmt.setString(1, user.getName());
-            pstmt.setString(2, user.getAddress());
-            pstmt.setString(3, user.getPhone());
-            pstmt.setString(4, "suba");
-            pstmt.setString(5, user.getEmail());
-            pstmt.setString(6, user.getPassword());
+    long id = 0;
+    try (
+            PreparedStatement pstmt = con.prepareStatement(SQL,
+                    Statement.RETURN_GENERATED_KEYS)) {
 
 
-            int affectedRows = pstmt.executeUpdate();
-            // check the affected rows
-            if (affectedRows > 0) {
-                // get the ID back
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        id = rs.getLong(1);
-                        abc = true;
-                    } else {abc = false;}
-                } catch (SQLException ex) {
-                    System.out.println(ex.getMessage());
-                }
+
+        int affectedRows = pstmt.executeUpdate();
+        // check the affected rows
+
+    } catch (SQLException ex) {
+        System.out.println(ex.getMessage());
+    }
+    //return id;
+    return abc;
+}
+    public boolean createUsuario(String llave, User user) throws SQLException {
+        Boolean abc = false;
+        if(autenticando(llave).next()){
+    String SQL = "insert into users (fullname, address, phone, id_zone, mail, password) values (?, ?,?,(select id from zone where name=?),?,?); insert into token (id, token) values ('"+user.getEmail()+"','abc');";
+    long id = 0;
+    try (
+            PreparedStatement pstmt = con.prepareStatement(SQL,
+                    Statement.RETURN_GENERATED_KEYS)) {
+
+        pstmt.setString(1, user.getName());
+        pstmt.setString(2, user.getAddress());
+        pstmt.setString(3, user.getPhone());
+        pstmt.setString(4, "suba");
+        pstmt.setString(5, user.getEmail());
+        pstmt.setString(6, user.getPassword());
+        int affectedRows = pstmt.executeUpdate();
+        // check the affected rows
+        if (affectedRows > 0) {
+            // get the ID back
+            try (ResultSet rsa = pstmt.getGeneratedKeys()) {
+                if (rsa.next()) {
+                    id = rsa.getLong(1);
+                    abc = true;
+                } else {abc = false;}
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
             }
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
         }
+    }
+}
         //return id;
         return abc;
     }
+public ResultSet autenticando (String llave) throws SQLException {
+        Boolean abc = false;
+    Statement st;
+    String qwerty="select * from token where token='"+llave+"'";
+    st = con.createStatement();
+    ResultSet rs = st.executeQuery(qwerty);
+        return rs;
 
-    public boolean createBus(Bus bus) throws SQLException {
-        boolean abc = false;
+}
+    public Boolean createBus(String llave,Bus bus) throws SQLException {
 
+       if(autenticando(llave).next()){
         String SQL = "insert into Bus (id_zone, seat, placa, reference)" +
                 " values ((select id from zone where name=?),?,?,?);";
 
         long id = 0;
-
-        try (
-                PreparedStatement pstmt = con.prepareStatement(SQL,
-                        Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement pstmt = con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, "suba");
-
             pstmt.setInt(2, bus.getSeats());
             pstmt.setString(3, bus.getPlate());
             pstmt.setString(4, bus.getReference());
 
             int affectedRows = pstmt.executeUpdate();
             // check the affected rows
-            if (affectedRows > 0) {
-                // get the ID back
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        id = rs.getLong(1);
-                        abc = true;
-                    } else {abc = false;}
-                } catch (SQLException ex) {
-                    System.out.println(ex.getMessage());
-                }
-            }
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
-        //return id;
-        return abc;
+return true;
+        } } else {
+           return false;
+       }
     }
 
-    public boolean createTren(Tren tren) throws SQLException {
-        boolean abc = false;
+    public Boolean createTren(String llave,Tren tren) throws SQLException {
+        if(autenticando(llave).next()){
 
         String SQL = "insert into tren (id_zone, seat, reference)" +
                 " values ((select id from zone where name=?),?,?);";
@@ -127,22 +143,10 @@ public class db implements AutoCloseable{
 
             int affectedRows = pstmt.executeUpdate();
             // check the affected rows
-            if (affectedRows > 0) {
-                // get the ID back
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        id = rs.getLong(1);
-                        abc = true;
-                    } else {abc = false;}
-                } catch (SQLException ex) {
-                    System.out.println(ex.getMessage());
-                }
-            }
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+return true;
+        }} else {
+            return false;
         }
-        //return id;
-        return abc;
     }
 
     public boolean addZone(final String user, final String pass) throws SQLException {
@@ -177,21 +181,67 @@ public class db implements AutoCloseable{
         return route;
     }
 
-    public Bus searchBus(Bus bus, Route route) throws SQLException {
-
-System.out.println(route);
+    public Route SearchUserZone(Route route) throws SQLException {
+        boolean abc;
         try(Statement st = con.createStatement();
 
-            ResultSet rs = st.executeQuery("select * from bus;")) {
+            ResultSet rs = st.executeQuery("select * from user where zone "+ route.getDestino())) {
 
             while (rs.next()){
-                bus.setPlate(rs.getString("placa"));
-                bus.setSeats(rs.getInt("seat"));
-                bus.setReference(rs.getString("reference"));
+                route.setDestino(rs.getString("name"));
             }
-            }
-
-        return bus;
+            if (rs.next()) {
+                System.out.println(rs.getString(1));
+                abc = true;
+            } else {abc = false;}
+        }
+        return route;
     }
 
-}
+    public String searchBus(String llave, Bus bus, Route route) throws SQLException {
+        List<Bus> dataList = new LinkedList<>();
+String json = null;
+        Gson gson = new Gson();
+
+
+        if(autenticando(llave).next()){
+
+            try (Statement sta = con.createStatement(); ResultSet rss = sta.executeQuery("select * from bus;")) {
+
+                while (rss.next()) {
+
+                    bus.setPlate(rss.getString("placa"));
+                    bus.setSeats(rss.getInt("seat"));
+                    bus.setReference(rss.getString("reference"));
+                    dataList.add(new Bus(rss.getString("placa"),rss.getInt("seat"), rss.getString("reference")));
+                   json = gson.toJson(dataList);
+
+                }
+
+                return json;
+            }} else {
+            return null;
+        }
+
+        }
+
+    public String searchTren(String llave, Tren tren) throws SQLException {
+        List<Bus> dataList = new LinkedList<>();
+        String json = null;
+        Gson gson = new Gson();
+        if(autenticando(llave).next()){
+                try (Statement sta = con.createStatement();
+                     ResultSet rss = sta.executeQuery("select * from tren;")) {
+
+                    while (rss.next()) {
+                        tren.setSeats(rss.getInt("seat"));
+                        tren.setReference(rss.getString("reference"));
+                        json = gson.toJson(dataList);
+                    }
+                    return json;
+                }} else {
+            return null;
+        }
+        }
+    }
+

@@ -47,11 +47,11 @@ public class ProxySystem implements ILogin {
 
     public void registerUser(User user) {
         if (users.containsKey(user.getEmail())) return;
-        try {
+        /*try {
             connection.createUsuario(user);
         } catch (SQLException e) {
             e.printStackTrace();
-        }
+        }*/
         users.put(user.getEmail(), user.getPassword());
     }
 

@@ -9,6 +9,10 @@ public class Tren {
         this.reference = reference;
     }
 
+    public Tren() {
+
+    }
+
     public int getSeats() {
         return seats;
     }

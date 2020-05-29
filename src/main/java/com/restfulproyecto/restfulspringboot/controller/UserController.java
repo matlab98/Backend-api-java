@@ -11,7 +11,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
@@ -49,17 +48,19 @@ public class UserController {
 		return instance;
 	}
 	@GetMapping("/login")
-	public User askUser(@RequestParam("user") String email, @RequestParam("password") String pass) throws SQLException {
+	public Object askUser(@RequestParam("user") String email, @RequestParam("password") String pass) throws SQLException {
 
 		    User user = new User(email, pass);
 
 		SecretKey key = login(user);
 System.out.println("login");
 			if (key != null) {
-				user.setKey(key);
-				System.out.println(key.getEncoded());
+				String encodedKey = Base64.getEncoder().encodeToString(key.getEncoded());
+
+				user.setKey(encodedKey);
+				connection.tokenizer(user);
 				return user;
-			}else {return null;}
+			}else {return "Fail";}
 
 	}
 
@@ -71,17 +72,15 @@ System.out.println("login");
 		System.out.println("crear usuario");
 
 		User usuario = new User(mail, pwd, name, address, phone);
-
 		try {
-			connection.createUsuario(usuario);
+			if(connection.createUsuario(llave, usuario)){
+				return usuario;
+			} else {return null;}
 		} catch (SQLException e) {
-
+return null;
 		}
 
-		SecretKey key = login(usuario);
-		createUser(usuario, key);
-		addUserToZone(usuario, zone, key);
-		return usuario;
+
 	}
 
 	@GetMapping("/updateUser")
@@ -97,8 +96,8 @@ System.out.println("login");
 	}
 
 	@GetMapping("/searchUserZone")
-	public User searchUserZone(@RequestParam("key") String llave, @RequestParam("zone") String zone) {
-
+	public String searchUserZone(@RequestParam("key") String llave, @RequestParam("zone") String zone) {
+        User user = new User();
 		System.out.println("Buscar usuario por zona");
 // rebuild key using SecretKeySpec
 /*
@@ -113,7 +112,7 @@ System.out.println("login");
 		SecretKey key = login(usuario);
 		createUser(usuario, key);
 		addUserToZone(usuario, zone, key);*/
-		return null;
+		return user.getInfo();
 	}
 
 
@@ -134,32 +133,65 @@ System.out.println("login");
 	}
 
 	@GetMapping("/createBus")
-	public Bus askBus(@RequestParam("key") String llave, @RequestParam("placa") String placa, @RequestParam("seat") int seat,
+	public Object askBus(@RequestParam("key") String llave, @RequestParam("placa") String placa, @RequestParam("seat") int seat,
 						 @RequestParam("reference") String reference, @RequestParam("conductor") String name,
 					  @RequestParam("destino") String destino){
 		System.out.println("Crear bus");
         Bus bus = new Bus(placa, seat, reference);
-		try {
-			connection.createBus(bus);
-		} catch (SQLException e) {
 
+		try {
+			if(connection.createBus(llave,bus)){
+				return bus;
+			}else {
+				return "Autenticación fallida";
+			}
+		} catch (SQLException e) {
+			return "Autenticación fallida";
 		}
-		return bus;
+
+
+
 	}
 
-	@GetMapping("/searchBusRoute")
-	public Bus searchBusRoute(@RequestParam("key") String llave, @RequestParam("route") String ruta) {
+	@GetMapping("/searchBus")
+	public Object searchBusRoute(@RequestParam("key") String llave, @RequestParam("route") String ruta) {
 		System.out.println("Buscar bus ruta");
 		Bus bus = new Bus();
 		Route route = new Route();
 		route.setDestino(ruta);
 
 		try {
-			connection.searchBus(bus,route);
-		} catch (SQLException e) {
+			if(connection.searchBus(llave, bus,route)!=null) {
+				return connection.searchBus(llave, bus,route);
 
+			}else {
+				return "";
+			}
+
+		} catch (SQLException e) {
+return "Autenticación fallida";
 		}
-		return bus;
+
+
+	}
+
+	@GetMapping("/searchTren")
+	public Object searchTren(@RequestParam("key") String llave) {
+		System.out.println("Buscar tren ruta");
+		Tren tren = new Tren();
+
+		try {
+			if(connection.searchTren(llave, tren)!=null){
+				return connection.searchTren(llave, tren);
+			}else {
+				return "Autenticación fallida";
+			}
+
+		} catch (SQLException e) {
+			return "Autenticación fallida";
+		}
+
+
 	}
 
 	@GetMapping("/updateBus")
@@ -175,23 +207,21 @@ System.out.println("login");
 
 
 	@GetMapping("/createTren")
-	public Tren askTren(@RequestParam("key") String llave, @RequestParam("seat") int seat,
+	public Object askTren(@RequestParam("key") String llave, @RequestParam("seat") int seat,
 						@RequestParam("reference") String reference, @RequestParam("conductor") String name,
 						@RequestParam("destino") String destino){
 		System.out.println("Crear tren");
 		Tren tren = new Tren (seat, reference);
 		try {
-			connection.createTren(tren);
+			if(connection.createTren(llave,tren)){
+				return tren;
+			}else {
+				return "Autenticación fallida";
+			}
 		} catch (SQLException e) {
-
+			return "Autenticación fallida";
 		}
-	/*	Bus bus = new Bus(placa, seat, reference);
-		try {
-			connection.createBus(bus);
-		} catch (SQLException e) {
 
-		}
-		return bus;*/return tren;
 	}
 
 	@GetMapping("/updateTren")

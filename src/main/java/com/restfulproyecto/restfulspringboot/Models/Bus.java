@@ -62,4 +62,10 @@ public class Bus implements SabanaTransport {
     }
 
     //endregion
+
+    @Override
+    public String toString() {
+        return "Data [Plate=" + plate + ", Seats=" + seats + ", reference="
+                + reference + "]";
+    }
 }
